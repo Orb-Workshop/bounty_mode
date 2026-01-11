@@ -20,11 +20,8 @@ const bulletin_ct = new BulletinBoard({
 });
 
 const echo = new Base.MessageTask((key, data) => {
-    data = JSON.stringify(data);
-    CSS.Msg(`${key} - ${data}`);
+    CSS.Msg(`${key} - ${JSON.stringify(data)}`);
 });
-
-
 
 Base.Mount.Start();
 CSS.Msg("Bounty Mode!");

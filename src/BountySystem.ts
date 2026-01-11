@@ -63,7 +63,7 @@ export class BountySystem extends Base.System {
 
         // Sort our bounties, descending. Remove entries with no reward.
         return bounty_listing
-            .sort((a, b) => b.kills - a.kills)
+            .sort((a, b) => b.reward - a.reward)
             .filter(bounty => bounty.reward > 0);
 
     }
@@ -85,7 +85,6 @@ export class BountySystem extends Base.System {
         if (money <= 0) return;
         
         const player_name = Util.GetPlayerName(player_pawn);
-        CSS.Msg(`Giving $${money} to ${player_name}`);
         const game_money_entity = CSS.FindEntityByName(this.game_money_targetname);
         if (game_money_entity.GetClassName() !== "game_money") {
             CSS.Msg(`Failed to find 'game_money' Entity with targetname '${this.game_money_targetname}'`);
@@ -102,8 +101,13 @@ export class BountySystem extends Base.System {
     override OnPlayerKill(event) {
         const player_killer = event.attacker; // killer
         const player_death = event.player;    // deadman
-
-        // Give the killer the bounty reward
+        if (!(player_killer instanceof CSPlayerPawn)) return;
+        if (!(player_death instanceof CSPlayerPawn)) return;
+        
+        // Don't record kills or deaths if they're teammates
+        if (player_killer.GetTeamNumber() === player_death.GetTeamNumber()) return;
+        
+        // Give the killer the bounty reward, and fire an actor message event
         const reward_money = this.GetPlayerBountyReward(player_death);
         if (reward_money > 0) {
             this.GiveMoney(player_killer, reward_money);
@@ -113,14 +117,10 @@ export class BountySystem extends Base.System {
                 reward_amount: reward_money,
             });
         }
-
-        if (player_killer instanceof CSPlayerPawn) {
-            this.recordKill(player_killer);
-        }
-
-        if (player_death instanceof CSPlayerPawn) {
-            this.recordDeath(player_death);
-        }
+            
+        // 
+        this.recordKill(player_killer);
+        this.recordDeath(player_death);
     }
 
     override OnRoundStart() {

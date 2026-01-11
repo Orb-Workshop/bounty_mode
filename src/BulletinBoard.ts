@@ -31,7 +31,7 @@ export class BulletinBoard extends Base.Actor {
     private handleEvent_BountyRewarded({player_rewarded, reward_amount, player_killed}) {
         const player_name = Util.GetPlayerName(player_rewarded);
         const player_dead_name = Util.GetPlayerName(player_killed);
-        CSS.ServerCommand(`say Rewarded ${player_name} with $${reward_amount} for killing ${player_dead_name}`);
+        CSS.Msg(`Rewarded ${player_name} with $${reward_amount} for killing ${player_dead_name}`);
     }
 
     private MarkBulletin() {
@@ -43,7 +43,7 @@ export class BulletinBoard extends Base.Actor {
     }
     
     private UpdateBoard() {
-        CSS.Msg(this.team_number == 2 ? "T" : "CT");
+        CSS.Msg("Active Bounties for " + this.team_number == 2 ? "T" : "CT");
         for (const bullet of this.board) {
             const {
                 player_name, reward, team_number,
