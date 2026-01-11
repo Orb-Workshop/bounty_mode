@@ -30,4 +30,3 @@ const bulletin_ct = new BulletinBoard({
 // Go
 Base.Mount.Start();
 CSS.Msg("Bounty Mode!");
-
