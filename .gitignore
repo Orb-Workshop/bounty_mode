@@ -34,7 +34,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .DS_Store
 
 # Comment if you want to include the build with the map
-scripts/main.js
+scripts/bounty_mode.js
 
 # CS2 Specific
 _other/.autosave

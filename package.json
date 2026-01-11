@@ -13,8 +13,8 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "build": "bun build ./src/main.ts --outdir ./scripts --external cs_script/point_script",
-    "watch": "bun --watch build ./src/main.ts --outdir ./scripts --external cs_script/point_script",
+    "build": "bun build ./src/main.ts --outfile ./scripts/bounty_mode.js --external cs_script/point_script",
+    "watch": "bun --watch build ./src/main.ts --outfile ./scripts/bounty_mode.js --external cs_script/point_script",
     "postinstall": "bun run ./bun_postinstall.ts"
   }
 }
