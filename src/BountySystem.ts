@@ -22,7 +22,8 @@ function RewardFunction(kills: number): number {
 type PlayerMap = Map<CSPlayerPawn, number>;
 export class BountySystem extends Base.System {
     static MessageTag = "BountySystem_MessageTag";
-    private player_listing: PlayerMap = new Map();
+    private player_kill_mapping: PlayerMap = new Map();
+    private player_bounty_mapping: PlayerMap = new Map();
     private game_money_targetname: string;
     private reward_function: (number) => number;
     
@@ -41,26 +42,33 @@ export class BountySystem extends Base.System {
     }
     
     private recordKill(player_pawn: CSPlayerPawn) {
-        if (!this.player_listing.has(player_pawn))
-            this.player_listing.set(player_pawn, 0);
-        const num_kills = this.player_listing.get(player_pawn);
-        this.player_listing.set(player_pawn, num_kills+1);
+        if (!this.player_kill_mapping.has(player_pawn))
+            this.player_kill_mapping.set(player_pawn, 0);
+        const num_kills = this.player_kill_mapping.get(player_pawn);
+        this.player_kill_mapping.set(player_pawn, num_kills+1);
     }
-    
+
     private recordDeath(player_pawn: CSPlayerPawn) {
-        this.player_listing.set(player_pawn, 0);
+        this.player_kill_mapping.set(player_pawn, 0);
+        this.player_bounty_mapping.set(player_pawn, 0);
     }
     
     /** Sorted List of bounties by player name */
     private generateBountyListing(): Array<BountyEntry> {
         const bounty_listing = [];
-        this.player_listing.forEach((kills: number, player_pawn: CSPlayerPawn) => {
+
+        // Generate a bounty listing from our kill stats
+        this.player_kill_mapping.forEach((kills: number, player_pawn: CSPlayerPawn) => {
+            if (!player_pawn.IsValid()) return;
             const player_name = Util.GetPlayerName(player_pawn);
-            const team_number = player_pawn.GetTeamNumber();
+            const team_number = player_pawn?.GetTeamNumber();
             const reward = this.reward_function(kills);
             bounty_listing.push({ player_name, reward, team_number });
         });
 
+        // Do a shallow copy of our player kill mapped stats into our bounty mapping.
+        this.player_bounty_mapping = new Map(this.player_kill_mapping);
+        
         // Sort our bounties, descending. Remove entries with no reward.
         return bounty_listing
             .sort((a, b) => b.reward - a.reward)
@@ -69,7 +77,7 @@ export class BountySystem extends Base.System {
     }
 
     private GetPlayerBountyReward(player_pawn: CSPlayerPawn): number {
-        const kills = this.player_listing.get(player_pawn) ?? 0;
+        const kills = this.player_bounty_mapping.get(player_pawn) ?? 0;
         return this.reward_function(kills);
     }
     
@@ -92,9 +100,14 @@ export class BountySystem extends Base.System {
         }
         CSS.EntFireAtTarget({
             target: game_money_entity,
+            input: "SetMoneyAmount",
+            value: money,
+        });
+        CSS.EntFireAtTarget({
+            target: game_money_entity,
             activator: player_pawn,
             input: "AddMoneyPlayer",
-            value: money,
+            delay: 0.1,
         });
     }
     
@@ -103,6 +116,7 @@ export class BountySystem extends Base.System {
         const player_death = event.player;    // deadman
         if (!(player_killer instanceof CSPlayerPawn)) return;
         if (!(player_death instanceof CSPlayerPawn)) return;
+        if (!player_killer.IsValid() || !player_death.IsValid()) return;
         
         // Don't record kills or deaths if they're teammates
         if (player_killer.GetTeamNumber() === player_death.GetTeamNumber()) return;

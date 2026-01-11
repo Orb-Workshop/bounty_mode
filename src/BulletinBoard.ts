@@ -16,12 +16,14 @@ export class BulletinBoard extends Base.Actor {
         team_number,
     }) {
         super();
+        this.target_name = target_name;
         this.team_number = team_number;
+        this.ClearBoard();
     }
 
     private handleEvent_BountyListingUpdated(bounty_listing: Array<BountyEntry>) {
         // Filter out for our team
-        const board = bounty_listing.filter((entry) => entry.team_number == this.team_number);
+        const board = bounty_listing.filter((entry) => entry.team_number != this.team_number);
         
         // Retrieve only the first five
         this.board = board.slice(0, 5);
@@ -29,27 +31,46 @@ export class BulletinBoard extends Base.Actor {
     }
 
     private handleEvent_BountyRewarded({player_rewarded, reward_amount, player_killed}) {
-        const player_name = Util.GetPlayerName(player_rewarded);
-        const player_dead_name = Util.GetPlayerName(player_killed);
-        CSS.Msg(`Rewarded ${player_name} with $${reward_amount} for killing ${player_dead_name}`);
-    }
-
-    private MarkBulletin() {
-
+        //const player_name = Util.GetPlayerName(player_rewarded);
+        //const player_dead_name = Util.GetPlayerName(player_killed);
+        //CSS.Msg(`Rewarded ${player_name} with $${reward_amount} for killing ${player_dead_name}`);
     }
     
-    private ClearBoardEntries() {
-        
+    private ClearBoard() {
+        for (let i = 0; i < 5; i++) {
+            const bulletin_target_name = this.target_name + "_bulletin_" + i;
+            const label_wanted = bulletin_target_name + "_label.wanted";
+            const label_player_name = bulletin_target_name + "_label.player_name";
+            const label_reward = bulletin_target_name + "_label.reward";
+            const label_money = bulletin_target_name + "_label.money";
+
+            const clearLabel = (name) => CSS.EntFireAtName({name, input: "SetMessage", value: ""});
+            clearLabel(label_wanted);
+            clearLabel(label_player_name);
+            clearLabel(label_reward);
+            clearLabel(label_money);
+        }
     }
     
     private UpdateBoard() {
-        CSS.Msg("Active Bounties for " + this.team_number == 2 ? "T" : "CT");
-        for (const bullet of this.board) {
+        this.ClearBoard();
+        this.board.forEach((bullet, idx) => {
             const {
                 player_name, reward, team_number,
             } = bullet;
-            CSS.Msg(`${player_name} - ${reward}`);
-        }
+
+            const bulletin_target_name = this.target_name + "_bulletin_" + idx;
+            const label_wanted = bulletin_target_name + "_label.wanted";
+            const label_player_name = bulletin_target_name + "_label.player_name";
+            const label_reward = bulletin_target_name + "_label.reward";
+            const label_money = bulletin_target_name + "_label.money";
+
+            const setLabel = (name, value) => CSS.EntFireAtName({name, input: "SetMessage", value});
+            setLabel(label_wanted, "Wanted");
+            setLabel(label_player_name, player_name.substr(0, 8));
+            setLabel(label_reward, "Reward");
+            setLabel(label_money, "$" + reward);
+        });
     }
     
     override ReceiveMessage(tag: string, data: any): void {
