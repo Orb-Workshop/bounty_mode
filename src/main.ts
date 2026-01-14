@@ -1,6 +1,6 @@
 import { Instance as CSS } from "cs_script/point_script";
 import {
-    Base,
+    Base, Util,
 } from "scriptedeuch";
 
 import { BountySystem, BulletinBoard } from "./index";
@@ -26,6 +26,25 @@ const bulletin_ct = new BulletinBoard({
 //const echo = new Base.MessageTask((key, data) => {
 //    CSS.Msg(`${key} - ${JSON.stringify(data)}`);
 //});
+
+
+// Reward Message from the Server.
+function RewardMessage(killer_name: string, death_name: string, reward_amount: number) {
+    return `${killer_name} received a $${reward_amount} bounty reward for killing ${death_name}!`;
+}
+
+// Listen for "BountyRewarded" event from the running BountySystem instance.
+const rewardMessage = new Base.MessageTask((key, data) => {
+    if (key !== BountySystem.MessageTag) return;
+    const { event_name, event_data } = data;
+    if (event_name !== "BountyRewarded") return;
+    const { player_rewarded, player_killed, reward_amount } = event_data;
+    const killer_name = Util.GetPlayerName(player_rewarded) ?? "N/A";
+    const death_name = Util.GetPlayerName(player_killed) ?? "N/A";
+    const reward_message = RewardMessage(killer_name, death_name, reward_amount);
+    CSS.ServerCommand(`say ${reward_message}`);
+});
+
 
 // Go
 Base.Mount.Start();
