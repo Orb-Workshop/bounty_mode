@@ -54,7 +54,6 @@ const relayMessenger = new Base.MessageTask((tag, data) => {
     if (tag !== BountySystem.MessageTag) return;
     const { event_name, event_data } = data;
     if (event_name == "BountyRewarded") {
-        CSS.Msg("BountyRewarded!");
         CSS.EntFireAtName({
             name: Relay_BountyRewarded_targetname,
             input: "Trigger",
@@ -62,7 +61,6 @@ const relayMessenger = new Base.MessageTask((tag, data) => {
         });
     }
     else if (event_name == "BountyListingUpdated") {
-        CSS.Msg("BountyListingUpdated!");
         CSS.EntFireAtName({
             name: Relay_BountyListingUpdated_targetname,
             input: "Trigger",
