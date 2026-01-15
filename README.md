@@ -17,7 +17,7 @@ Cash Reward Denominations
 
 ## Installation
 
-- Download [Latest Release](https://github.com/Orb-Workshop/scriptedeuch/releases)
+- Download [Latest Release](https://github.com/Orb-Workshop/bounty_mode/releases)
 
 - Extract bounty_mode.zip and copy the folder structure over your cs2 project folder
 
