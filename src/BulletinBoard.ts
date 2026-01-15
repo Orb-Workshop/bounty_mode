@@ -43,12 +43,14 @@ export class BulletinBoard extends Base.Actor {
             const label_player_name = bulletin_target_name + "_label.player_name";
             const label_reward = bulletin_target_name + "_label.reward";
             const label_money = bulletin_target_name + "_label.money";
+            const label_paper = bulletin_target_name + "_paper";
 
             const clearLabel = (name) => CSS.EntFireAtName({name, input: "SetMessage", value: ""});
             clearLabel(label_wanted);
             clearLabel(label_player_name);
             clearLabel(label_reward);
             clearLabel(label_money);
+            CSS.EntFireAtName({name: label_paper, input: "Disable"});
         }
     }
     
@@ -58,18 +60,20 @@ export class BulletinBoard extends Base.Actor {
             const {
                 player_name, reward, team_number,
             } = bullet;
-
+            
             const bulletin_target_name = this.target_name + "_bulletin_" + idx;
             const label_wanted = bulletin_target_name + "_label.wanted";
             const label_player_name = bulletin_target_name + "_label.player_name";
             const label_reward = bulletin_target_name + "_label.reward";
             const label_money = bulletin_target_name + "_label.money";
-
+            const label_paper = bulletin_target_name + "_paper";
+            
             const setLabel = (name, value) => CSS.EntFireAtName({name, input: "SetMessage", value});
             setLabel(label_wanted, "Wanted");
             setLabel(label_player_name, player_name.substr(0, 8));
             setLabel(label_reward, "Reward");
             setLabel(label_money, "$" + reward);
+            CSS.EntFireAtName({name: label_paper, input: "Enable"});
         });
     }
     
