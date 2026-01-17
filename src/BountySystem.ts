@@ -112,6 +112,7 @@ export class BountySystem extends Base.System {
     }
     
     override OnPlayerKill(event) {
+        if (CSS.IsWarmupPeriod()) return;
         const player_killer = event.attacker; // killer
         const player_death = event.player;    // deadman
         if (!(player_killer instanceof CSPlayerPawn)) return;
